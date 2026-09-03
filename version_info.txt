@@ -1,10 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
 # UTF-8
-# Windows 可执行文件版本资源（由 GitBundleBackuper.spec 在 Windows 下引用）
+# Windows 可执行文件版本资源（由 GitBundleBackuper.spec / build.bat 引用）
+# ★ exe 右键属性里的版本号, 升级版本时请与 main.py 的 APP_VERSION 同步!
+#   (本文件是 PyInstaller 静态资源, 无法 import main.py, 需手工保持一致)
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(1, 0, 0, 0),
-    prodvers=(1, 0, 0, 0),
+    filevers=(1, 0, 1, 0),
+    prodvers=(1, 0, 1, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,
@@ -19,12 +21,12 @@ VSVersionInfo(
           '080404B0',
           [StringStruct('CompanyName', 'ShoutBeast'),
            StringStruct('FileDescription', 'Git Bundle 打包恢复工具'),
-           StringStruct('FileVersion', '1.0.0.0'),
+           StringStruct('FileVersion', '1.0.1.0'),
            StringStruct('InternalName', 'GitBundleBackuper'),
            StringStruct('LegalCopyright', 'Copyright (c) 2026 ShoutBeast'),
            StringStruct('OriginalFilename', 'GitBundleBackuper.exe'),
            StringStruct('ProductName', 'GitBundleBackuper'),
-           StringStruct('ProductVersion', '1.0.0.0')]
+           StringStruct('ProductVersion', '1.0.1.0')]
         )
       ]
     ),

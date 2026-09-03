@@ -107,7 +107,7 @@ ctk.set_default_color_theme(_theme_json_path())   # 颜色主题须在创建任�
 # 外观模式(浅色/深色/系统)在 __init__ 中读 config 后应用, 见 GitBundleApp.__init__
 
 APP_TITLE = "Git Bundle 打包/恢复工具"
-APP_VERSION = "v1.0.0"       # 展示版本, 与 version_info.txt(1.0.0.0) 保持一致
+APP_VERSION = "v1.0.1"       # ★ 唯一版本源: 关于窗口显示此值; 升版本只改这里
 APP_AUTHOR = "ShoutBeast"
 GIT_SITE = "https://github.com/ShoutBeast/git-bundle-backuper/"
 RELEASE_LINK = "https://github.com/ShoutBeast/git-bundle-backuper/releases"
