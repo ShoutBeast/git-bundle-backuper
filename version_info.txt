@@ -1,0 +1,33 @@
+# -*- mode: python ; coding: utf-8 -*-
+# UTF-8
+# Windows 可执行文件版本资源（由 GitBundleBackuper.spec 在 Windows 下引用）
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 0, 0, 0),
+    prodvers=(1, 0, 0, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo(
+      [
+        StringTable(
+          '080404B0',
+          [StringStruct('CompanyName', 'ShoutBeast'),
+           StringStruct('FileDescription', 'Git Bundle 打包恢复工具'),
+           StringStruct('FileVersion', '1.0.0.0'),
+           StringStruct('InternalName', 'GitBundleBackuper'),
+           StringStruct('LegalCopyright', 'Copyright (c) 2026 ShoutBeast'),
+           StringStruct('OriginalFilename', 'GitBundleBackuper.exe'),
+           StringStruct('ProductName', 'GitBundleBackuper'),
+           StringStruct('ProductVersion', '1.0.0.0')]
+        )
+      ]
+    ),
+    VarFileInfo([VarStruct('Translation', [2052, 1200])])
+  ]
+)
