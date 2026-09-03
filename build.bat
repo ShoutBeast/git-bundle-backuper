@@ -26,6 +26,10 @@ echo [1/3] Installing build dependencies ...
 if errorlevel 1 ( echo [ERROR] pip install failed & pause & exit /b 1 )
 
 echo [2/3] Building exe ...
+rem 先生成最新图标（高清 PNG + 多尺寸 ICO）
+%PY% test\make_icon.py
+if errorlevel 1 ( echo [WARN] make_icon.py 执行失败，将使用现有图标继续 )
+
 %PY% -m PyInstaller --noconfirm --clean --onefile --windowed ^
     --name GitBundleBackuper ^
     --icon "GitBundleBackuper.ico" ^
@@ -33,6 +37,8 @@ echo [2/3] Building exe ...
     --collect-all customtkinter ^
     --collect-all PIL ^
     --add-data "themes\lavender.json;themes" ^
+    --add-data "GitBundleBackuper.ico;." ^
+    --add-data "icon.png;." ^
     main.py
 if errorlevel 1 ( echo [ERROR] PyInstaller failed & pause & exit /b 1 )
 

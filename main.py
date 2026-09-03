@@ -23,6 +23,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox
 
 import customtkinter as ctk
+from PIL import Image, ImageTk
 
 # 源码运行时, 保证能 import 同目录 core(打包成 exe 后无需此行)
 if not getattr(sys, "frozen", False):
@@ -34,14 +35,72 @@ import core
 APPEARANCE_LABELS = {"浅色": "Light", "深色": "Dark", "系统": "System"}
 
 
+def _resource_base() -> str:
+    """返回打包/源码运行时的资源根目录。
+    打包后资源随 exe 解压到 _MEIPASS，源码运行时为脚本所在目录。
+    """
+    if getattr(sys, "frozen", False):
+        return getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    return os.path.dirname(os.path.abspath(__file__))
+
+
 def _theme_json_path():
     """lavender 主题文件路径: 打包后资源随 exe 解压到 _MEIPASS, 源码时为脚本同目录。"""
-    if getattr(sys, "frozen", False):
-        base = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
-    else:
-        base = os.path.dirname(os.path.abspath(__file__))
-    path = os.path.join(base, "themes", "lavender.json")
+    path = os.path.join(_resource_base(), "themes", "lavender.json")
     return path if os.path.isfile(path) else "blue"   # 兜底: 找不到资源时退回官方内置 blue
+
+
+def _app_icon_images() -> list:
+    """加载多尺寸图标 PhotoImage 列表，供非 Windows 平台的 wm_iconphoto 使用。
+    Windows 平台直接走 iconbitmap，此函数只在非 Windows 时调用。
+    """
+    base = _resource_base()
+    png_path = os.path.join(base, "icon.png")
+    ico_path = os.path.join(base, "GitBundleBackuper.ico")
+
+    images = []
+    try:
+        if os.path.isfile(png_path):
+            src = Image.open(png_path).convert("RGBA")
+        elif os.path.isfile(ico_path):
+            src = Image.open(ico_path).convert("RGBA")
+        else:
+            return []
+        # 生成多个尺寸
+        for sz in (256, 128, 64, 48, 32, 16):
+            images.append(ImageTk.PhotoImage(src.resize((sz, sz), Image.LANCZOS)))
+    except Exception:
+        pass
+    return images
+
+
+def _set_window_icon(win: tk.Tk) -> None:
+    """设置窗口图标。
+
+    Windows：只用 iconbitmap + ICO 文件。ICO 内含 256/128/64/48/32/16 多帧，
+    Windows Shell 会自动按 DPI 挑选最合适的帧，是最清晰的方式。
+    wm_iconphoto 在 Windows 上会被 iconbitmap 覆盖且本身不支持 DPI 感知，故不用。
+
+    非 Windows：用 wm_iconphoto + 多尺寸 PNG 帧。
+    """
+    base = _resource_base()
+    ico_path = os.path.join(base, "GitBundleBackuper.ico")
+
+    if sys.platform == "win32":
+        # Windows：iconbitmap 直接读 ICO 文件，Shell 自动选最佳帧
+        if os.path.isfile(ico_path):
+            try:
+                win.iconbitmap(default=ico_path)
+            except Exception:
+                pass
+    else:
+        # 非 Windows：用 PhotoImage 多帧
+        images = _app_icon_images()
+        if images:
+            try:
+                win.wm_iconphoto(True, *images)
+            except Exception:
+                pass
 
 
 ctk.set_default_color_theme(_theme_json_path())   # 颜色主题须在创建任何控件之前设置
@@ -71,6 +130,9 @@ class GitBundleApp(ctk.CTk):
         self.title(APP_TITLE)
         self.geometry("880x700")
         self.minsize(820, 640)
+
+        # 设置高清窗口图标（标题栏左上角 + 任务栏）
+        _set_window_icon(self)
         self._running = False           # 是否有任务在跑
         self._msg_q = queue.Queue()     # 工作线程 -> 主线程的消息队列
         self._log_boxes = {}            # tag -> CTkTextbox

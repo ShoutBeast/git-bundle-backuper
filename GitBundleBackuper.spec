@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
 
-datas = [('themes/lavender.json', 'themes')]
+datas = [('themes/lavender.json', 'themes'), ('GitBundleBackuper.ico', '.'), ('icon.png', '.')]
 binaries = []
 hiddenimports = []
 tmp_ret = collect_all('customtkinter')
