@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 
 CONFIG_NAME = "config.json"
 
@@ -264,8 +265,10 @@ def run_backup(repo_dir, project_name, version, output_dir, log=None):
 
     emit("")
     emit("== git bundle verify ==")
+    # verify 需要在某个 git 仓库内执行, 这里与 create 一致以源仓库为上下文
     proc = subprocess.Popen(
         ["git", "bundle", "verify", bundle_file],
+        cwd=repo,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
@@ -324,16 +327,22 @@ def run_restore(bundle_file, restore_root, project_name="", log=None):
         raise RuntimeError("目标目录已存在, 请先移除或更换恢复位置:\n%s" % dest)
 
     emit("== git bundle verify ==")
-    proc = subprocess.Popen(
-        ["git", "bundle", "verify", bundle_file],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        encoding=_output_encoding,
-        errors="replace",
-        bufsize=1,
-    )
-    _stream_proc(proc, emit)
+    # git bundle verify 必须在某个 git 仓库内执行; 恢复前目标仓库尚不存在,
+    # 故在系统临时目录建一个空仓库作为验证上下文(随 with 退出自动清理)。
+    with tempfile.TemporaryDirectory(prefix="gbb_verify_") as tmp_repo:
+        subprocess.run(["git", "init", "-q"], cwd=tmp_repo,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        proc = subprocess.Popen(
+            ["git", "bundle", "verify", bundle_file],
+            cwd=tmp_repo,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding=_output_encoding,
+            errors="replace",
+            bufsize=1,
+        )
+        _stream_proc(proc, emit)
 
     emit("")
     emit("== git clone ==")
